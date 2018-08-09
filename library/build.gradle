@@ -11,6 +11,9 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName version
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+        }
     }
     buildTypes {
         release {
@@ -25,11 +28,13 @@ android {
 }
 
 dependencies {
+    // X5 WebView Jar 版本为: tbs_sdk_thirdapp_v3.6.0.1315_43612_sharewithdownload_withoutGame_obfs_20180718_102847.jar
+    compile fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 def siteUrl = 'https://github.com/lzyzsd/JsBridge'
 def gitUrl = 'https://github.com/lzyzsd/JsBridge.git'
-apply plugin: 'com.github.dcendents.android-maven'
+// apply plugin: 'com.github.dcendents.android-maven'
 group = "com.github.lzyzsd.jsbridge"
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs

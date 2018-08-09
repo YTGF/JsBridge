@@ -2,9 +2,10 @@ package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
