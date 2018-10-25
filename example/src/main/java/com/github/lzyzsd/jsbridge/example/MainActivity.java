@@ -72,15 +72,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		webView.loadUrl("file:///android_asset/demo.html");
 
-		webView.registerHandler("submitFromWeb", new BridgeHandler() {
+		webView.registerHandler(new BridgeHandler() {
 
 			@Override
-			public void handler(String data, CallBackFunction function) {
-				Log.i(TAG, "handler = submitFromWeb, data from web = " + data);
+			public void handler(String name, String data, CallBackFunction function) {
+                Log.i(TAG, "handler = " + name + ", data from web = " + data);
                 function.onCallBack("submitFromWeb exe, response data 中文 from Java");
-			}
-
+            }
 		});
+
+//		webView.registerFunction("submitFromWeb");
 
         User user = new User();
         Location location = new Location();

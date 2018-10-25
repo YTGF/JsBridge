@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 
 import com.tencent.smtt.sdk.WebView;
 
@@ -22,8 +23,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 
 	public static final String toLoadJs = "WebViewJavascriptBridge.js";
 	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
-	Map<String, BridgeHandler> messageHandlers = new HashMap<String, BridgeHandler>();
+	BridgeHandler messageHandler;
 	BridgeHandler defaultHandler = new DefaultHandler();
+
+//	private Map<String, Object> messageKeys = new HashMap<String, Object>();
 
 	private List<Message> startupMessage = new ArrayList<Message>();
 
@@ -203,15 +206,9 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 									}
 								};
 							}
-							// BridgeHandler执行
-							BridgeHandler handler;
-							if (!TextUtils.isEmpty(m.getHandlerName())) {
-								handler = messageHandlers.get(m.getHandlerName());
-							} else {
-								handler = defaultHandler;
-							}
-							if (handler != null){
-								handler.handler(m.getData(), responseFunction);
+                            // BridgeHandler执行
+							if (messageHandler != null) {
+								messageHandler.handler(m.getHandlerName(), m.getData(), responseFunction);
 							}
 						}
 					}
@@ -230,26 +227,20 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	/**
 	 * register handler,so that javascript can call it
 	 * 注册处理程序,以便javascript调用它
-	 * @param handlerName handlerName
 	 * @param handler BridgeHandler
 	 */
-	public void registerHandler(String handlerName, BridgeHandler handler) {
-		if (handler != null) {
-            // 添加至 Map<String, BridgeHandler>
-			messageHandlers.put(handlerName, handler);
-		}
-	}
-	
-	/**
-	 * unregister handler
-	 * 
-	 * @param handlerName
-	 */
-	public void unregisterHandler(String handlerName) {
-		if (handlerName != null) {
-			messageHandlers.remove(handlerName);
-		}
-	}
+    public void registerHandler(BridgeHandler handler) {
+        if (handler != null) {
+            messageHandler = handler;
+        }
+    }
+
+    /**
+     * unregister handler
+     */
+    public void unregisterHandler() {
+        messageHandler = null;
+    }
 
 	/**
 	 * call javascript registered handler
