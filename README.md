@@ -3,7 +3,8 @@
 ##### 此库 Fork 来源为 https://github.com/lzyzsd/JsBridge , 相对修改历史:
 1. 修改日期 2018-08-10, 内容: 集成 腾讯 X5 WebView 功能库, 替换默认继承的 WebView 及相关 API 类, 详见 c676d31297 此记录修改.
 	- X5 WebView SDK 库: https://x5.tencent.com/tbs/sdk.html 的 Android SDK（完整版 v3.6.0.1315, 2018-07-18）版本; 
-2. .................
+2. 修改日期 2019-04-10, 内容: 截止目前修复部分 Bug 及优化 JsBridge registerHandler 方式, 更新 X5 WebView SdK 库版本为当前最新 tbs_sdk_thirdapp_v4.3.0.1020_43633_sharewithdownload_withoutGame_obfs_20190111_105200.jar 版本;
+3. .................
 
 
 

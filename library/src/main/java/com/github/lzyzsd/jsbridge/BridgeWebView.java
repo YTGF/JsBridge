@@ -158,7 +158,6 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	void flushMessageQueue() {
 		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
 			loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new CallBackFunction() {
-
 				@Override
 				public void onCallBack(String data) {
 					// deserializeMessage 反序列化消息
