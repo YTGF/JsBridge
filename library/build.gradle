@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 version = "1.0.0"
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 1
         versionName version
         ndk {
@@ -29,7 +29,7 @@ android {
 
 dependencies {
     // X5 WebView Jar 版本为: tbs_sdk_thirdapp_v3.6.0.1315_43612_sharewithdownload_withoutGame_obfs_20180718_102847.jar
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 def siteUrl = 'https://github.com/lzyzsd/JsBridge'
