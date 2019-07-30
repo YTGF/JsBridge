@@ -1,13 +1,11 @@
-package com.github.lzyzsd.jsbridge;
+package com.github.jsbridge;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 
 import com.tencent.smtt.sdk.WebView;
 
@@ -17,40 +15,40 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
+public class YtBridgeWebView extends WebView implements YtWebViewJavascriptBridge {
 
 	private final String TAG = "BridgeWebView";
 
 	public static final String toLoadJs = "WebViewJavascriptBridge.js";
-	Map<String, CallBackFunction> responseCallbacks = new HashMap<String, CallBackFunction>();
-	BridgeHandler messageHandler;
-	BridgeHandler defaultHandler = new DefaultHandler();
+	Map<String, YtCallBackFunction> responseCallbacks = new HashMap<String, YtCallBackFunction>();
+	YtBridgeHandler messageHandler;
+	YtBridgeHandler defaultHandler = new YtDefaultHandler();
 
 //	private Map<String, Object> messageKeys = new HashMap<String, Object>();
 
-	private List<Message> startupMessage = new ArrayList<Message>();
+	private List<YtMessage> startupMessage = new ArrayList<YtMessage>();
 
-	public List<Message> getStartupMessage() {
+	public List<YtMessage> getStartupMessage() {
 		return startupMessage;
 	}
 
-	public void setStartupMessage(List<Message> startupMessage) {
+	public void setStartupMessage(List<YtMessage> startupMessage) {
 		this.startupMessage = startupMessage;
 	}
 
 	private long uniqueId = 0;
 
-	public BridgeWebView(Context context, AttributeSet attrs) {
+	public YtBridgeWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public BridgeWebView(Context context, AttributeSet attrs, int defStyle) {
+	public YtBridgeWebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
 
-	public BridgeWebView(Context context) {
+	public YtBridgeWebView(Context context) {
 		super(context);
 		init();
 	}
@@ -61,7 +59,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	 *            default handler,handle messages send by js without assigned handler name,
      *            if js message has handler name, it will be handled by named handlers registered by native
 	 */
-	public void setDefaultHandler(BridgeHandler handler) {
+	public void setDefaultHandler(YtBridgeHandler handler) {
        this.defaultHandler = handler;
 	}
 
@@ -72,8 +70,8 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 		this.setWebViewClient(generateBridgeWebViewClient());
 	}
 
-    protected BridgeWebViewClient generateBridgeWebViewClient() {
-        return new BridgeWebViewClient(this);
+    protected YtBridgeWebViewClient generateBridgeWebViewClient() {
+        return new YtBridgeWebViewClient(this);
     }
 
     /**
@@ -81,9 +79,9 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
      * @param url
      */
 	void handlerReturnData(String url) {
-		String functionName = BridgeUtil.getFunctionFromReturnUrl(url);
-		CallBackFunction f = responseCallbacks.get(functionName);
-		String data = BridgeUtil.getDataFromReturnUrl(url);
+		String functionName = YtBridgeUtil.getFunctionFromReturnUrl(url);
+		YtCallBackFunction f = responseCallbacks.get(functionName);
+		String data = YtBridgeUtil.getDataFromReturnUrl(url);
 		if (f != null) {
 			f.onCallBack(data);
 			responseCallbacks.remove(functionName);
@@ -97,7 +95,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	}
 
 	@Override
-	public void send(String data, CallBackFunction responseCallback) {
+	public void send(String data, YtCallBackFunction responseCallback) {
 		doSend(null, data, responseCallback);
 	}
 
@@ -107,13 +105,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
      * @param data data
      * @param responseCallback CallBackFunction
      */
-	private void doSend(String handlerName, String data, CallBackFunction responseCallback) {
-		Message m = new Message();
+	private void doSend(String handlerName, String data, YtCallBackFunction responseCallback) {
+		YtMessage m = new YtMessage();
 		if (!TextUtils.isEmpty(data)) {
 			m.setData(data);
 		}
 		if (responseCallback != null) {
-			String callbackStr = String.format(BridgeUtil.CALLBACK_ID_FORMAT, ++uniqueId + (BridgeUtil.UNDERLINE_STR + SystemClock.currentThreadTimeMillis()));
+			String callbackStr = String.format(YtBridgeUtil.CALLBACK_ID_FORMAT, ++uniqueId + (YtBridgeUtil.UNDERLINE_STR + SystemClock.currentThreadTimeMillis()));
 			responseCallbacks.put(callbackStr, responseCallback);
 			m.setCallbackId(callbackStr);
 		}
@@ -127,7 +125,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
      * list<message> != null 添加到消息集合否则分发消息
      * @param m Message
      */
-	private void queueMessage(Message m) {
+	private void queueMessage(YtMessage m) {
 		if (startupMessage != null) {
 			startupMessage.add(m);
 		} else {
@@ -139,13 +137,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
      * 分发message 必须在主线程才分发成功
      * @param m Message
      */
-	void dispatchMessage(Message m) {
+	void dispatchMessage(YtMessage m) {
         String messageJson = m.toJson();
         //escape special characters for json string  为json字符串转义特殊字符
         messageJson = messageJson.replaceAll("(\\\\)([^utrn])", "\\\\\\\\$1$2");
         messageJson = messageJson.replaceAll("(?<=[^\\\\])(\")", "\\\\\"");
 		messageJson = messageJson.replaceAll("(?<=[^\\\\])(\')", "\\\\\'");
-        String javascriptCommand = String.format(BridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
+        String javascriptCommand = String.format(YtBridgeUtil.JS_HANDLE_MESSAGE_FROM_JAVA, messageJson);
         // 必须要找主线程才会将数据传递出去 --- 划重点
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
             this.loadUrl(javascriptCommand);
@@ -157,13 +155,13 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
      */
 	void flushMessageQueue() {
 		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-			loadUrl(BridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new CallBackFunction() {
+			loadUrl(YtBridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new YtCallBackFunction() {
 				@Override
 				public void onCallBack(String data) {
 					// deserializeMessage 反序列化消息
-					List<Message> list = null;
+					List<YtMessage> list = null;
 					try {
-						list = Message.toArrayList(data);
+						list = YtMessage.toArrayList(data);
 					} catch (Exception e) {
                         e.printStackTrace();
 						return;
@@ -172,30 +170,30 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 						return;
 					}
 					for (int i = 0; i < list.size(); i++) {
-						Message m = list.get(i);
+						YtMessage m = list.get(i);
 						String responseId = m.getResponseId();
 						// 是否是response  CallBackFunction
 						if (!TextUtils.isEmpty(responseId)) {
-							CallBackFunction function = responseCallbacks.get(responseId);
+							YtCallBackFunction function = responseCallbacks.get(responseId);
 							String responseData = m.getResponseData();
 							function.onCallBack(responseData);
 							responseCallbacks.remove(responseId);
 						} else {
-							CallBackFunction responseFunction = null;
+							YtCallBackFunction responseFunction = null;
 							// if had callbackId 如果有回调Id
 							final String callbackId = m.getCallbackId();
 							if (!TextUtils.isEmpty(callbackId)) {
-								responseFunction = new CallBackFunction() {
+								responseFunction = new YtCallBackFunction() {
 									@Override
 									public void onCallBack(String data) {
-										Message responseMsg = new Message();
+										YtMessage responseMsg = new YtMessage();
 										responseMsg.setResponseId(callbackId);
 										responseMsg.setResponseData(data);
 										queueMessage(responseMsg);
 									}
 								};
 							} else {
-								responseFunction = new CallBackFunction() {
+								responseFunction = new YtCallBackFunction() {
 									@Override
 									public void onCallBack(String data) {
 										// do nothing
@@ -214,10 +212,10 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	}
 
 
-	public void loadUrl(String jsUrl, CallBackFunction returnCallback) {
+	public void loadUrl(String jsUrl, YtCallBackFunction returnCallback) {
 		this.loadUrl(jsUrl);
         // 添加至 Map<String, CallBackFunction>
-		responseCallbacks.put(BridgeUtil.parseFunctionName(jsUrl), returnCallback);
+		responseCallbacks.put(YtBridgeUtil.parseFunctionName(jsUrl), returnCallback);
 	}
 
 	/**
@@ -225,7 +223,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	 * 注册处理程序,以便javascript调用它
 	 * @param handler BridgeHandler
 	 */
-    public void registerHandler(BridgeHandler handler) {
+    public void registerHandler(YtBridgeHandler handler) {
         if (handler != null) {
             messageHandler = handler;
         }
@@ -245,7 +243,7 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	 * @param data data
 	 * @param callBack CallBackFunction
 	 */
-	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
+	public void callHandler(String handlerName, String data, YtCallBackFunction callBack) {
         doSend(handlerName, data, callBack);
 	}
 }

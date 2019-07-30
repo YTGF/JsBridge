@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.github.lzyzsd.jsbridge.BridgeHandler;
-import com.github.lzyzsd.jsbridge.BridgeWebView;
-import com.github.lzyzsd.jsbridge.CallBackFunction;
-import com.github.lzyzsd.jsbridge.DefaultHandler;
+import com.github.jsbridge.YtBridgeHandler;
+import com.github.jsbridge.YtBridgeWebView;
+import com.github.jsbridge.YtCallBackFunction;
+import com.github.jsbridge.YtDefaultHandler;
 import com.google.gson.Gson;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -21,7 +21,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private final String TAG = "MainActivity";
 
-	BridgeWebView webView;
+	YtBridgeWebView webView;
 
 	Button button;
 
@@ -44,13 +44,13 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-        webView = (BridgeWebView) findViewById(R.id.webView);
+        webView = (YtBridgeWebView) findViewById(R.id.webView);
 
 		button = (Button) findViewById(R.id.button);
 
 		button.setOnClickListener(this);
 
-		webView.setDefaultHandler(new DefaultHandler());
+		webView.setDefaultHandler(new YtDefaultHandler());
 
 		webView.setWebChromeClient(new WebChromeClient() {
 
@@ -72,10 +72,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		webView.loadUrl("file:///android_asset/demo.html");
 
-		webView.registerHandler(new BridgeHandler() {
+		webView.registerHandler(new YtBridgeHandler() {
 
 			@Override
-			public void handler(String name, String data, CallBackFunction function) {
+			public void handler(String name, String data, YtCallBackFunction function) {
                 Log.i(TAG, "handler = " + name + ", data from web = " + data);
                 function.onCallBack("submitFromWeb exe, response data 中文 from Java");
             }
@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements OnClickListener {
         user.location = location;
         user.name = "大头鬼";
 
-        webView.callHandler("functionInJs", new Gson().toJson(user), new CallBackFunction() {
+        webView.callHandler("functionInJs", new Gson().toJson(user), new YtCallBackFunction() {
             @Override
             public void onCallBack(String data) {
 
@@ -121,7 +121,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (button.equals(v)) {
-            webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
+            webView.callHandler("functionInJs", "data from Java", new YtCallBackFunction() {
 
 				@Override
 				public void onCallBack(String data) {
