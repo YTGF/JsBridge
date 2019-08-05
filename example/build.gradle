@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+    buildToolsVersion("28.0.3")
 
     defaultConfig {
         applicationId "com.github.lzyzsd.jsbridge.example"
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         ndk {
@@ -23,8 +23,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':library')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.code.gson:gson:2.8.2'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':library')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
 }
