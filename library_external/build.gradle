@@ -1,0 +1,48 @@
+apply plugin: 'com.android.library'
+
+version = "1.0.0"
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 28
+        versionCode 1
+        versionName version
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions { // 消除lint警告
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
+    // X5 WebView Jar 版本
+    api fileTree(include: ['*.jar'], dir: 'libs')
+}
+
+// 发布maven配置
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = 'yingt.external.tencent'
+            pom.artifactId = "tbs"
+            pom.version = "1.0.0"
+            pom.packaging = 'aar'
+            repository(url: uri("${rootProject.projectDir}/.local-repository"))
+        }
+    }
+}
