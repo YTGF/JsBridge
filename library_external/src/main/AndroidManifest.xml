@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.jsbridge">
+    package="yingt.external.tencent.tbs">
 
     <application
         android:allowBackup="true"

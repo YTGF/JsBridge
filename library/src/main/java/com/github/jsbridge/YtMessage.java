@@ -1,4 +1,4 @@
-package com.github.lzyzsd.jsbridge;
+package com.github.jsbridge;
 
 import android.text.TextUtils;
 import org.json.JSONArray;
@@ -14,7 +14,7 @@ import org.json.JSONTokener;
  * @author haoqing
  *
  */
-public class Message {
+public class YtMessage {
 
 	private String callbackId; //callbackId
 	private String responseId; //responseId
@@ -80,8 +80,8 @@ public class Message {
         return null;
     }
 	
-	public static Message toObject(String jsonStr) {
-        Message m =  new Message();
+	public static YtMessage toObject(String jsonStr) {
+        YtMessage m =  new YtMessage();
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
             m.setHandlerName(jsonObject.has(HANDLER_NAME_STR) ? jsonObject.getString(HANDLER_NAME_STR):null);
@@ -96,12 +96,12 @@ public class Message {
         return m;
 	}
 	
-	public static List<Message> toArrayList(String jsonStr){
-        List<Message> list = new ArrayList<Message>();
+	public static List<YtMessage> toArrayList(String jsonStr){
+        List<YtMessage> list = new ArrayList<YtMessage>();
         try {
             JSONArray jsonArray = new JSONArray(jsonStr);
             for(int i = 0; i < jsonArray.length(); i++){
-                Message m = new Message();
+                YtMessage m = new YtMessage();
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 m.setHandlerName(jsonObject.has(HANDLER_NAME_STR) ? jsonObject.getString(HANDLER_NAME_STR):null);
                 m.setCallbackId(jsonObject.has(CALLBACK_ID_STR) ? jsonObject.getString(CALLBACK_ID_STR):null);

@@ -1,19 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+    buildToolsVersion("28.0.3")
 
     defaultConfig {
         applicationId "com.github.lzyzsd.jsbridge.example"
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86"
         }
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,8 +24,27 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':library')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
+
+
+    // 注意: 前两方案要注释掉 方案3 的引用及 jniLibs so 库剔除
+    // 项目根目录下终端执行 sh build.sh 指令, 自动生成本地 maven 库
+
+    // 集成方案1 - 纯 Maven 库依赖方式:
+//    api 'yingt.external.tencent:tbs:1.0.0'
+//    implementation 'yingt.core:jsbridge:1.0.0'
+
+    // 集成方案2 - 纯 library project 依赖方式:
+//    api project(':library_external')
+//    implementation project(':library')
+
+    // PS: 前两者可混搭使用, 例如:
+//    api 'yingt.external.tencent:tbs:1.0.0'
+//    implementation project(':library')
+
+    // 集成方案3 - 仅依赖核心 library project, 外部 external 库壳项目直接导入方式:
+    api fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    // 以及添加 jniLibs liblbs.so 库文件依赖
+    implementation project(':library')
 }

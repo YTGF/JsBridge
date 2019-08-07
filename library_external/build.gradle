@@ -28,8 +28,8 @@ android {
 }
 
 dependencies {
-    compileOnly project(':library_external')
-    // compileOnly 'yingt.external.tencent:tbs:1.0.0'
+    // X5 WebView Jar 版本
+    api fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 // 发布maven配置
@@ -38,8 +38,8 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            pom.groupId = 'yingt.core'
-            pom.artifactId = "jsbridge"
+            pom.groupId = 'yingt.external.tencent'
+            pom.artifactId = "tbs"
             pom.version = "1.0.0"
             pom.packaging = 'aar'
             repository(url: uri("${rootProject.projectDir}/.local-repository"))
