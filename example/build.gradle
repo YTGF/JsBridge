@@ -46,5 +46,5 @@ dependencies {
     // 集成方案3 - 仅依赖核心 library project, 外部 external 库壳项目直接导入方式:
     api fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     // 以及添加 jniLibs liblbs.so 库文件依赖
-    implementation project(':library')
+    implementation appDependence.YtJsBridge
 }

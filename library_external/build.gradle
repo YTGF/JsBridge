@@ -40,9 +40,11 @@ uploadArchives {
         mavenDeployer {
             pom.groupId = 'yingt.external.tencent'
             pom.artifactId = "tbs"
-            pom.version = "1.0.0"
+            pom.version = publish.YtX5TbsVersion
             pom.packaging = 'aar'
-            repository(url: uri("${rootProject.projectDir}/.local-repository"))
+            repository(url: publish.repositoryUrl) {
+                authentication(userName: publish.repositoryUserName, password: publish.repositoryPassword)
+            }
         }
     }
 }

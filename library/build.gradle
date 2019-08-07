@@ -28,8 +28,9 @@ android {
 }
 
 dependencies {
-    compileOnly project(':library_external')
-    // compileOnly 'yingt.external.tencent:tbs:1.0.0'
+//    compileOnly project(':library_external')
+//    compileOnly 'yingt.external.tencent:tbs:1.0.0-SNAPSHOT'
+    compileOnly appDependence.YtX5Tbs
 }
 
 // 发布maven配置
@@ -40,9 +41,11 @@ uploadArchives {
         mavenDeployer {
             pom.groupId = 'yingt.core'
             pom.artifactId = "jsbridge"
-            pom.version = "1.0.0"
+            pom.version = publish.YtJsBridgeVersion
             pom.packaging = 'aar'
-            repository(url: uri("${rootProject.projectDir}/.local-repository"))
+            repository(url: publish.repositoryUrl) {
+                authentication(userName: publish.repositoryUserName, password: publish.repositoryPassword)
+            }
         }
     }
 }
