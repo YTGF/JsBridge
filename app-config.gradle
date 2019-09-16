@@ -7,7 +7,7 @@ ext {
             repositoryPassword: "deploy2018",
 
             YtX5TbsVersion    : "1.0.0-SNAPSHOT",
-            YtJsBridgeVersion : "1.0.0-SNAPSHOT",
+            YtJsBridgeVersion : "1.0.1-SNAPSHOT",
     ]
 
     appDependence = [
