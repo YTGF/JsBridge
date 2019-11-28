@@ -1,13 +1,13 @@
 ext {
     publish = [
             // 需要本地实时修改时可用本地 Maven 仓库依赖, 提交后建议发布到远程 Maven 仓库
-            repositoryUrl     : uri("${rootProject.projectDir}/.local-repository"),
-//            repositoryUrl     : "https://maven.inin88.com/repository/maven-snapshots/",
+//            repositoryUrl     : uri("${rootProject.projectDir}/.local-repository"),
+            repositoryUrl     : "https://maven.inin88.com/repository/maven-snapshots/",
             repositoryUserName: "deployment",
             repositoryPassword: "deploy2018",
 
             YtX5TbsVersion    : "1.0.0-SNAPSHOT",
-            YtJsBridgeVersion : "1.0.1-SNAPSHOT",
+            YtJsBridgeVersion : "1.0.3-SNAPSHOT",
     ]
 
     appDependence = [
