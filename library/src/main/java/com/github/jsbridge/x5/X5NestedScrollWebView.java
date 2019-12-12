@@ -7,14 +7,25 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Scroller;
 
+import com.tencent.smtt.export.external.extension.interfaces.IX5WebViewExtension;
 import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewCallbackClient;
 
-public class X5NestedScrollWebView extends WebView implements WebViewCallbackClient, NestedScrollingChild2 {
+/**
+ * X5NestedScrollWebView
+ *
+ * @author Edward
+ * @email miansheng.zheng@inin88.com
+ * @company 深圳市盈通数据服务股份有限公司
+ * <p>
+ * @description 针对 X5 WebView 的 NestedScroll 包装类, 跟 SystemNestedScrollWebView 基本一致,
+ * 仅 super.onTouchEvent 与 super.super_onTouchEvent 不同, 需结合 {@link X5WebViewCallbackClient} 使用.
+ * <p>
+ * @date 2019-09-17
+ */
+public class X5NestedScrollWebView extends WebView implements NestedScrollingChild2 {
 
     public static final String TAG = "X5WebView";
 
@@ -56,14 +67,9 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         // slop缩小一点，需要提前比WebView感知滚动
-        mTouchSlop = (int)(configuration.getScaledTouchSlop() * 0.9f);
+        mTouchSlop = (int) (configuration.getScaledTouchSlop() * 0.9f);
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
-    }
-
-    @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
     }
 
     // NestedScrollingChild
@@ -72,10 +78,20 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
     public void setNestedScrollingEnabled(boolean enabled) {
         mChildHelper.setNestedScrollingEnabled(enabled);
 
-        if(enabled) {
-            setWebViewCallbackClient(this);
-        } else {
-            setWebViewCallbackClient(null);
+        if (enabled) settingNestedScroll();
+    }
+
+    /**
+     * 设置处理 NestedScroll 滚动事件
+     */
+    public void settingNestedScroll() {
+        // 重写 TBS WebView 的屏幕事件: https://x5.tencent.com/tbs/technical.html#/detail/sdk/1/8fcbfe60-2034-4e0a-ac58-74c47494f870
+        X5WebViewCallbackClient x5WebViewCallbackClient = new X5WebViewCallbackClient(this);
+        this.setWebViewCallbackClient(x5WebViewCallbackClient);
+
+        IX5WebViewExtension x5WebViewExtension = this.getX5WebViewExtension();
+        if (x5WebViewExtension != null) {
+            x5WebViewExtension.setWebViewClientExtension(new X5WebViewClientExtension(x5WebViewCallbackClient));
         }
     }
 
@@ -157,8 +173,8 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
     // Touch
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev, View view) {
-        if(!isNestedScrollingEnabled()) {
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (!isNestedScrollingEnabled()) {
             return super_onTouchEvent(ev);
         }
 
@@ -181,7 +197,7 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
                     abortAnimatedScroll();
                 }
 
-                mLastMotionY = (int)(ev.getY() + 0.5f);
+                mLastMotionY = (int) (ev.getY() + 0.5f);
                 mActivePointerId = ev.getPointerId(0);
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
                 break;
@@ -194,7 +210,7 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
                 }
 
                 // nested scroll parent先滚动
-                final int y = (int)(ev.getY(activePointerIndex) + 0.5f);
+                final int y = (int) (ev.getY(activePointerIndex) + 0.5f);
                 int deltaY = mLastMotionY - y;
                 if (dispatchNestedPreScroll(0, deltaY, mScrollConsumed, mScrollOffset,
                         ViewCompat.TYPE_TOUCH)) {
@@ -252,7 +268,7 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
                         dispatchNestedFling(0, -initialVelocity, true);
                         mScroller.fling(getWebScrollX(), getWebScrollY(),
                                 0, -initialVelocity,
-                                0,0,
+                                0, 0,
                                 Integer.MIN_VALUE, Integer.MAX_VALUE);
                         runAnimatedScroll(true);
                         // 因为这里实际上会比WebView原来的更早触发drag，所以需要手动取消click和long click事件
@@ -270,7 +286,7 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
 
             case MotionEvent.ACTION_POINTER_DOWN: {
                 final int index = ev.getActionIndex();
-                mLastMotionY = (int)(ev.getY(index) + 0.5f);
+                mLastMotionY = (int) (ev.getY(index) + 0.5f);
                 mActivePointerId = ev.getPointerId(index);
                 break;
             }
@@ -291,18 +307,8 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
     }
 
     @Override
-    public boolean overScrollBy(int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7, boolean b, View view) {
-        return super_overScrollBy(i, i1, i2, i3, i4, i5, i6, i7, b);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev, View view) {
-        return super_dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public void computeScroll(View view) {
-        if(!isNestedScrollingEnabled()) {
+    public void computeScroll() {
+        if (!isNestedScrollingEnabled()) {
             super_computeScroll();
             return;
         }
@@ -317,7 +323,7 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
         mLastScrollY = y;
 
         mScrollConsumed[1] = 0;
-        if(dispatchNestedPreScroll(0, unconsumed,
+        if (dispatchNestedPreScroll(0, unconsumed,
                 mScrollConsumed, null,
                 ViewCompat.TYPE_NON_TOUCH)) {
             unconsumed -= mScrollConsumed[1];
@@ -333,10 +339,10 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
 
             // Nested Scrolling Post Pass
             mScrollConsumed[1] = 0;
-            if(!dispatchNestedScroll(0, scrolledByMe,
+            if (!dispatchNestedScroll(0, scrolledByMe,
                     0, unconsumed, mScrollOffset,
                     ViewCompat.TYPE_NON_TOUCH)) {
-                if(mScroller.getFinalY() == 0) {
+                if (mScroller.getFinalY() == 0) {
                     abortAnimatedScroll();
                 }
             }
@@ -349,29 +355,14 @@ public class X5NestedScrollWebView extends WebView implements WebViewCallbackCli
         }
     }
 
-    @Override
-    public void onOverScrolled(int i, int i1, boolean b, boolean b1, View view) {
-        super_onOverScrolled(i, i1, b, b1);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev, View view) {
-        return super_onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public void onScrollChanged(int i, int i1, int i2, int i3, View view) {
-        super_onScrollChanged(i, i1, i2, i3);
-    }
-
     // 触发滚动，内部嵌套div的网页不适用
     private void scroll(int deltaY) {
         final int range = getVerticalScrollRange();
         final int oldY = getWebScrollY();
 
-        if(oldY + deltaY < 0) {
+        if (oldY + deltaY < 0) {
             getView().scrollTo(getWebScrollX(), 0);
-        } else if(oldY + deltaY > range) {
+        } else if (oldY + deltaY > range) {
             getView().scrollTo(getWebScrollX(), range);
         } else {
             getView().scrollBy(getWebScrollX(), deltaY);

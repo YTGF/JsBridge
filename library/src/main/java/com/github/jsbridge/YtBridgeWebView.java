@@ -8,9 +8,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.github.jsbridge.x5.X5NestedScrollWebView;
-import com.github.jsbridge.x5.X5WebViewCallbackClient;
-import com.github.jsbridge.x5.X5WebViewClientExtension;
-import com.tencent.smtt.export.external.extension.interfaces.IX5WebViewExtension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,20 +68,6 @@ public class YtBridgeWebView extends X5NestedScrollWebView implements YtWebViewJ
 		this.setHorizontalScrollBarEnabled(false);
 		this.getSettings().setJavaScriptEnabled(true);
 		this.setWebViewClient(generateBridgeWebViewClient());
-	}
-
-	/**
-	 * 设置处理 NestedScroll 滚动事件
-	 */
-	public void settingNestedScroll() {
-		// 重写 TBS WebView 的屏幕事件: https://x5.tencent.com/tbs/technical.html#/detail/sdk/1/8fcbfe60-2034-4e0a-ac58-74c47494f870
-		X5WebViewCallbackClient x5WebViewCallbackClient = new X5WebViewCallbackClient(this);
-		this.setWebViewCallbackClient(x5WebViewCallbackClient);
-
-		IX5WebViewExtension x5WebViewExtension = this.getX5WebViewExtension();
-		if (x5WebViewExtension != null) {
-			x5WebViewExtension.setWebViewClientExtension(new X5WebViewClientExtension(x5WebViewCallbackClient));
-		}
 	}
 
     protected YtBridgeWebViewClient generateBridgeWebViewClient() {
