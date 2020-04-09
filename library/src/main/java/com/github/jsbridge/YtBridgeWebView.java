@@ -150,10 +150,29 @@ public class YtBridgeWebView extends X5NestedScrollWebView implements YtWebViewJ
         }
     }
 
+	/** 兼容方法, 供连续触发 flushMessageQueue 时 JS iFrame.src 数据仍丢失, 可适当调整此延时参数值 */
+	@Deprecated
+	public void setDelayFlushTime(long delayFlushTime) {
+		this.delayFlushTime = delayFlushTime;
+	}
+
+	private long delayFlushTime = 25L;
+    private long preTime = 0;
+
     /**
      * 刷新消息队列
      */
 	void flushMessageQueue() {
+		// [兼容优化]连续过快调用时会导致 iFrame.src 多次赋值数据部分丢失, 故延迟触发 JS fetchQueue 方法
+		if (preTime != 0 && System.currentTimeMillis() - preTime < delayFlushTime) {
+			try {
+				Thread.sleep(delayFlushTime);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		preTime = System.currentTimeMillis();
+
 		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
 			loadUrl(YtBridgeUtil.JS_FETCH_QUEUE_FROM_JAVA, new YtCallBackFunction() {
 				@Override
